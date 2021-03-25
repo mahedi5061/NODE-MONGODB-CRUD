@@ -23,21 +23,39 @@ client.connect(err => {
         })
     })
 
+    app.get('/update/:id', (req, res) =>{
+      productCollection.find({_id:ObjectId(req.params.id)}) //to read fixed number of data we use
+      .toArray((err,documents) =>{
+        res.send(documents[0])
+      })
+    })
+
 
   app.post('/addProduct',(req,res) =>{
     const product=req.body;
     productCollection.insertOne(product)
     .then(result =>{
         console.log('data added successfully')
-        res.send('success')
+        res.redirect('/')
     })
      
+})
+
+app.patch('/updateAProduct/:id', (req, res)=>{
+  productCollection.updateOne({_id:ObjectId(req.params.id)},
+  {
+    $set: {price:req.body.price,quantity:req.body.quantity}
+  })
+  .then(result =>{
+     res.send(result.modifiedCount>0)
+  })
+  
 })
 
 app.delete('/delete/:id', (req, res) =>{
   productCollection.deleteOne({_id:ObjectId(req.params.id)})
   .then(result =>{
-     console.log(result)
+      res.send(result.deletedCount>0)
   })
 })
  

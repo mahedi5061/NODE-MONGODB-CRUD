@@ -17,26 +17,69 @@
      <div id="product">
        
      </div>
+      <div id="singleProduct">
+
+      </div>
      <script type="text/javascript">
-        fetch('/products')
+        function main(){
+            fetch('/products')
         .then(res=>res.json())
         .then(data=>{
             const container = document.getElementById('product');
+            container.innerHTML =''
             data.forEach(pd=>{
                 const p=document.createElement('p');
                 p.innerHTML=`<strong>${pd.name} price:${pd.price} quantity:${pd.quantity}
-                    <button onclick="deleteProduct('${pd._id}')">Delete</button>
+                    <button onclick="updateProduct('${pd._id}')">Update</button>
+                    <button onclick="deleteProduct(event,'${pd._id}')">Delete</button>
                     `;
                 container.appendChild(p); 
             })
         })
-        function deleteProduct(id) {
+        }
+        main()
+        function deleteProduct(event,id) {
              fetch(`/delete/${id}`,{
                  method:'DELETE',
              })
              .then(res=>res.json())
              .then(data=>{
-                 console.log('delete successful')
+                  event.target.parentNode.style.display='none'
+             })
+        }
+
+       
+
+        function updateProduct(id) {
+             fetch(`/update/${id}`)
+             .then(res=>res.json())
+             .then(data=>{
+                const update= document.getElementById('singleProduct')
+                update.innerHTML=`
+                Price:<input value="${data.price}" id="price"></input>
+                quantity:<input value="${data.quantity}" id="quantity"></input><br>
+                <button onclick=updateSingleProduct('${data._id}')>submit</button>
+            ` 
+             })
+          
+        }
+
+        function updateSingleProduct(id){
+            const price=document.getElementById('price').value;
+            const quantity=document.getElementById('quantity').value;
+            const product={id,price,quantity}
+            fetch(`/updateAProduct/${id}`,{
+                 method:'PATCH',
+                 headers:{'Content-Type': 'application/json'},
+                 body: JSON.stringify(product)
+             })
+             .then(res=>res.json())
+             .then(data=>{
+                  if(data){
+                    main();
+                    const update= document.getElementById('singleProduct')
+                    update.innerHTM=''
+                  }
              })
         }
     </script>
